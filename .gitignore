@@ -1,0 +1,7 @@
+*.jl.cov
+*.csv
+*.swp
+*.png
+*.DS_Store
+*.jl.*.cov
+*.jl.mem

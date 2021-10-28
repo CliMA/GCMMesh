@@ -7,7 +7,7 @@ function equispaced_rectangular_mesh(
     n1,
     n2,
     per = (false, false),
-) where {FT <: AbstractFloat}
+) where {FT<:AbstractFloat}
     x1c = range(x1min, x1max; length = n1 + 1)
     x2c = range(x2min, x2max; length = n2 + 1)
     return Mesh2D(x1c, x2c, per)
@@ -35,32 +35,32 @@ function Mesh2D(x1c, x2c, per = (false, false))
     ndmat = reshape(1:nverts, nx1, nx2) # node numbers
 
     fcmat1 = reshape(1:nfc1, nx1, nx2 - 1)        # faces with normals along x1 direction
-    fcmat2 = reshape((nfc1 + 1):nfaces, nx1 - 1, nx2) # faces with normals along x2 direction
+    fcmat2 = reshape((nfc1+1):nfaces, nx1 - 1, nx2) # faces with normals along x2 direction
 
     emat = reshape(1:nelems, nx1 - 1, nx2 - 1) # element numbers
 
     coordinates = [repeat(x1c, 1, nx2)[:] repeat(x2c', nx1, 1)[:]] # node coordinates
 
     face_verts = hcat(
-        vcat(ndmat[:, 1:(nx2 - 1)][:], ndmat[1:(nx1 - 1), :][:]), # face nodes
+        vcat(ndmat[:, 1:(nx2-1)][:], ndmat[1:(nx1-1), :][:]), # face nodes
         vcat(ndmat[:, 2:nx2][:], ndmat[2:nx1, :][:]),
     )
 
     face_boundary = Vector{I}(zeros(nfaces))
     # accounting for periodic boundaries, wherever applicable
     periodic = per[1] || per[2]
-    periodic_faces = Dict{Int, Int}()
+    periodic_faces = Dict{Int,Int}()
     global_vert = Vector{I}(1:nverts)
     if per[1]
         bdy1 = emat[end:end, :]
         bdy2 = emat[1:1, :]
         nbndry -= 2
-        for pfc in 1:(nx2 - 1)
+        for pfc = 1:(nx2-1)
             pfc1, pfc2 = fcmat1[1, pfc], fcmat1[nx1, pfc]
             periodic_faces[pfc1] = fcmat1[pfc2]
             periodic_faces[pfc2] = fcmat1[pfc1]
         end
-        for i in 1:nx2
+        for i = 1:nx2
             global_vert[ndmat[nx1, i]] = ndmat[1, i]
         end
     else
@@ -72,11 +72,11 @@ function Mesh2D(x1c, x2c, per = (false, false))
         bdy3 = emat[:, end:end]
         bdy4 = emat[:, 1:1]
         nbndry -= 2
-        for pfc in 1:(nx1 - 1)
+        for pfc = 1:(nx1-1)
             periodic_faces[fcmat2[pfc, 1]] = fcmat2[pfc, nx2]
             periodic_faces[fcmat2[pfc, nx2]] = fcmat2[pfc, 1]
         end
-        for i in 1:nx1
+        for i = 1:nx1
             global_vert[ndmat[i, nx2]] = global_vert[ndmat[i, 1]]
         end
     else
@@ -94,22 +94,22 @@ function Mesh2D(x1c, x2c, per = (false, false))
     )
 
     elem_verts = hcat(
-        ndmat[1:(nx1 - 1), 1:(nx2 - 1)][:], # node numbers (local vertex # 1)
-        ndmat[2:nx1, 1:(nx2 - 1)][:], # for each element (local vertex # 2)
+        ndmat[1:(nx1-1), 1:(nx2-1)][:], # node numbers (local vertex # 1)
+        ndmat[2:nx1, 1:(nx2-1)][:], # for each element (local vertex # 2)
         ndmat[2:nx1, 2:nx2][:], #(local vertex # 3)
-        ndmat[1:(nx1 - 1), 2:nx2][:], # (local vertex # 4)
+        ndmat[1:(nx1-1), 2:nx2][:], # (local vertex # 4)
     )
     elem_faces = hcat( # face numbers for each element
-        fcmat2[:, 1:(nx2 - 1)][:], # local face 1
+        fcmat2[:, 1:(nx2-1)][:], # local face 1
         fcmat1[2:nx1, :][:], # local face 2
         fcmat2[:, 2:nx2][:], # local face face 3
-        fcmat1[1:(nx1 - 1), :][:], # local face 4
+        fcmat1[1:(nx1-1), :][:], # local face 4
     )
     ref_fc_verts = [
         1 2 3 4
         2 3 4 1
     ]
-    for fc in 1:nfaces
+    for fc = 1:nfaces
         elems = (face_neighbors[fc, 1], face_neighbors[fc, 3])
 
         if periodic && haskey(periodic_faces, fc)
@@ -138,7 +138,7 @@ function Mesh2D(x1c, x2c, per = (false, false))
                 end
             end
         else # no periodic boundaries
-            for e in 1:2
+            for e = 1:2
                 el = elems[e]
                 if el ≠ 0
                     localface = findfirst(elem_faces[el, :] .== fc)
@@ -147,7 +147,7 @@ function Mesh2D(x1c, x2c, per = (false, false))
                             "rectangular_mesh: Fatal error, face could not be located in neighboring element",
                         )
                     else
-                        face_neighbors[fc, 2 + (e - 1) * 2] = localface
+                        face_neighbors[fc, 2+(e-1)*2] = localface
                     end
                 end
             end
@@ -172,21 +172,21 @@ function Mesh2D(x1c, x2c, per = (false, false))
         face_boundary = face_boundary[loc:end]
     end
 
-    for i in 1:(length(boundary_tags) - 1)
-        tag = boundary_tags[i + 1]
-        face_boundary_offset[i + 1] = findfirst(face_boundary_tags .== tag)
+    for i = 1:(length(boundary_tags)-1)
+        tag = boundary_tags[i+1]
+        face_boundary_offset[i+1] = findfirst(face_boundary_tags .== tag)
     end
     face_boundary_offset[end] = length(face_boundary) + 1
     tag_names = (:interior, :west, :east, :south, :north)
 
-    boundary_tag_names = tuple(tag_names[boundary_tags .+ 1]...)
+    boundary_tag_names = tuple(tag_names[boundary_tags.+1]...)
     NB = length(boundary_tag_names)
 
     # add unique vertex iterator information
     vtconn = map(i -> zeros(I, i), zeros(I, nverts))
 
-    for el in 1:nelems
-        for lv in 1:4
+    for el = 1:nelems
+        for lv = 1:4
             vt = global_vert[elem_verts[el, lv]]
             push!(vtconn[vt], el, lv)
         end
@@ -194,7 +194,7 @@ function Mesh2D(x1c, x2c, per = (false, false))
     unique_verts = I[]
     uverts_conn = I[]
     uverts_offset = I.([1])
-    for vt in 1:nverts
+    for vt = 1:nverts
         lconn = length(vtconn[vt])
         if lconn > 0
             push!(unique_verts, vt)
@@ -202,7 +202,7 @@ function Mesh2D(x1c, x2c, per = (false, false))
             push!(uverts_offset, uverts_offset[end] + lconn)
         end
     end
- 
+
     return Mesh2D(
         nverts,
         nfaces,

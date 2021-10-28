@@ -47,7 +47,7 @@ https://gsjaardema.github.io/seacas-docs/html/element_types.html#ordering
 # Fields
 $(DocStringExtensions.FIELDS)
 """
-struct Mesh2D{I, IA1D, IA2D, FT, FTA2D, SNT, NB} <: AbstractMesh{I,FT}
+struct Mesh2D{I,IA1D,IA2D,FT,FTA2D,SNT,NB} <: AbstractMesh{I,FT}
     "# of unique vertices in the mesh"
     nverts::I
     "# of unique faces in the mesh"
@@ -163,7 +163,7 @@ https://gsjaardema.github.io/seacas-docs/html/element_types.html#ordering
 # Fields
 $(DocStringExtensions.FIELDS)
 """
-struct Mesh3D{I, IA1D, IA2D, FT, FTA2D, SNT, NB} <: AbstractMesh{I,FT}
+struct Mesh3D{I,IA1D,IA2D,FT,FTA2D,SNT,NB} <: AbstractMesh{I,FT}
     "# of nodes in the mesh"
     nverts::I
     "# of edges in the mesh"
@@ -235,7 +235,7 @@ Mesh3D(
     typeof(coordinates),
     typeof(boundary_tag_names),
     length(boundary_tag_names),
-    }(
+}(
     nverts,
     nedges,
     nfaces,
@@ -256,7 +256,7 @@ Mesh3D(
     elem_verts,
     elem_faces,
     elem_edges,
-    )
+)
 
 include("box_mesh.jl")
 include("sphere_mesh.jl")

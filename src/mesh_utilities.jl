@@ -16,7 +16,9 @@ function opposing_face(mesh::AbstractMesh, elem, local_face)
     elseif neighbors[face, 3] == elem
         neigh_elem, neigh_lface = neighbors[face, 1], neighbors[face, 2]
     else
-        error("opposing_face: Fatal error, elem not found in face_neighbors; face_neighbors[$face] = $(neighbors[face, :])")
+        error(
+            "opposing_face: Fatal error, elem not found in face_neighbors; face_neighbors[$face] = $(neighbors[face, :])",
+        )
     end
     if neigh_elem == 0
         neigh_lface = local_face
@@ -28,18 +30,18 @@ end
 function interior_faces(mesh::Mesh2D)
     tags = mesh.boundary_tags
     offset = mesh.face_boundary_offset
-    
+
     if tags[1] ≠ 0
         return nothing
     else
-        return mesh.face_boundary[1:offset[2]-1] 
+        return mesh.face_boundary[1:offset[2]-1]
     end
 end
 
 function boundary_faces(mesh::AbstractMesh, btag::Int)
     tags = mesh.boundary_tags
     offset = mesh.face_boundary_offset
-    loc = findfirst(tags .== btag) 
+    loc = findfirst(tags .== btag)
     if loc == nothing
         return nothing
     else
@@ -70,13 +72,13 @@ end
 function unique_vertex_connectivity(mesh, uvertno::Int)
     offset = mesh.uverts_offset
     conn = mesh.uverts_conn
-    st, en = offset[uvertno], offset[uvertno + 1]
+    st, en = offset[uvertno], offset[uvertno+1]
     nconn = div(en - st, 2)
 
     if nconn == 0
         return nothing
     else
-        return [tuple(conn[(st + (i - 1) * 2):(st + (i - 1) * 2 + 1)]...) for i in 1:nconn]
+        return [tuple(conn[(st+(i-1)*2):(st+(i-1)*2+1)]...) for i = 1:nconn]
     end
 end
 
@@ -84,5 +86,5 @@ function vertex_coordinates(mesh::AbstractMesh, elem)
     @assert 0 < elem ≤ mesh.nelems
     verts = mesh.elem_verts[elem, :]
     coords = mesh.coordinates
-    return [tuple(coords[vert,:]...) for vert in verts]
+    return [tuple(coords[vert, :]...) for vert in verts]
 end

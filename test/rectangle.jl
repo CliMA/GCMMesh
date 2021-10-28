@@ -15,16 +15,8 @@ limits = (x1min, x2min, x1max, x2max)
 
     @testset "assert correct element numbering" begin
         mesh = equispaced_rectangular_mesh(limits..., 1, 1, (true, true))
-        @test_throws AssertionError Mesh.opposing_face(
-            mesh,
-            0,
-            1,
-        )
-        @test_throws AssertionError Mesh.opposing_face(
-            mesh,
-            2,
-            1,
-        )
+        @test_throws AssertionError Mesh.opposing_face(mesh, 0, 1)
+        @test_throws AssertionError Mesh.opposing_face(mesh, 2, 1)
     end
 
     @testset "1×1 element quad mesh with all periodic boundries" begin
@@ -143,25 +135,21 @@ end
         @test length(faces3) == 2
         @test length(faces4) == 2
 
-        @test [Mesh.boundary_face_info(mesh, face) for face in faces1] ==
-              [(1, 4), (3, 4), (5, 4)]
-        @test [Mesh.boundary_face_info(mesh, face) for face in faces2] ==
-              [(2, 2), (4, 2), (6, 2)]
-        @test [Mesh.boundary_face_info(mesh, face) for face in faces3] ==
-              [(1, 1), (2, 1)]
-        @test [Mesh.boundary_face_info(mesh, face) for face in faces4] ==
-              [(5, 3), (6, 3)]
+        @test [Mesh.boundary_face_info(mesh, face) for face in faces1] == [(1, 4), (3, 4), (5, 4)]
+        @test [Mesh.boundary_face_info(mesh, face) for face in faces2] == [(2, 2), (4, 2), (6, 2)]
+        @test [Mesh.boundary_face_info(mesh, face) for face in faces3] == [(1, 1), (2, 1)]
+        @test [Mesh.boundary_face_info(mesh, face) for face in faces4] == [(5, 3), (6, 3)]
     end
 end
 
 
 @testset "simple rectangular grid vertex iterator" begin
     @testset "1×1 element quad mesh with all periodic boundries" begin
-        mesh = equispaced_rectangular_mesh(limits...,1, 1, (true, true))
+        mesh = equispaced_rectangular_mesh(limits..., 1, 1, (true, true))
         uverts = mesh.unique_verts
         @test length(uverts) == 1
-        @test Mesh.unique_vertex_connectivity(mesh, 1)  == [(1, 1), (1, 2), (1, 3), (1, 4)]
-        @test length(Mesh.unique_vertex_connectivity(mesh, 1))  == 4
+        @test Mesh.unique_vertex_connectivity(mesh, 1) == [(1, 1), (1, 2), (1, 3), (1, 4)]
+        @test length(Mesh.unique_vertex_connectivity(mesh, 1)) == 4
     end
     @testset "1×1 element quad mesh with 1 periodic boundary" begin
         mesh = equispaced_rectangular_mesh(limits..., 1, 1, (true, false))
@@ -192,7 +180,7 @@ end
         @test collect(vc4) == [(1, 3)]
     end
     @testset "2×3 element quad mesh with non-periodic boundaries" begin
-        mesh = equispaced_rectangular_mesh(limits...,2, 3, (false, false))
+        mesh = equispaced_rectangular_mesh(limits..., 2, 3, (false, false))
         uverts = mesh.unique_verts
         @test length(uverts) == 3 * 4
         vc1 = Mesh.unique_vertex_connectivity(mesh, 1)
@@ -222,14 +210,14 @@ end
     @testset "1×1 element quad mesh with all periodic boundries" begin
         x1min, x1max = FT(0), FT(1)
         x2min, x2max = FT(0), FT(1)
-        limits = (x1min, x2min, x1max, x2max)        
+        limits = (x1min, x2min, x1max, x2max)
         mesh = equispaced_rectangular_mesh(limits..., 1, 1, (true, true))
         c1, c2, c3, c4 = Mesh.vertex_coordinates(mesh, 1)
         @test c1 == (0.0, 0.0)
         @test c2 == (1.0, 0.0)
         @test c3 == (1.0, 1.0)
         @test c4 == (0.0, 1.0)
-        
+
         x1min, x1max = FT(-1), FT(1)
         x2min, x2max = FT(-1), FT(1)
         limits = (x1min, x2min, x1max, x2max)

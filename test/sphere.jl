@@ -9,16 +9,8 @@ FT = Float64
 
     @testset "assert correct element numbering" begin
         mesh = cube_panel_mesh(1, FT)
-        @test_throws AssertionError Mesh.opposing_face(
-            mesh,
-            0,
-            1,
-        )
-        @test_throws AssertionError Mesh.opposing_face(
-            mesh,
-            7,
-            1,
-        )
+        @test_throws AssertionError Mesh.opposing_face(mesh, 0, 1)
+        @test_throws AssertionError Mesh.opposing_face(mesh, 7, 1)
     end
     @testset "6 element mesh with 1 element per panel" begin
         mesh = cube_panel_mesh(1, FT)
@@ -54,7 +46,7 @@ FT = Float64
 
         # 6 faces, 4 vertices per face, 8 global vertices, so each vertex should be part of 3 elements        
         # check that all vertices appear as part of 3 elements
-        for uvertno in 1:length(mesh.unique_verts)
+        for uvertno = 1:length(mesh.unique_verts)
             @test length(Mesh.unique_vertex_connectivity(mesh, uvertno)) == 3
         end
     end
@@ -70,11 +62,9 @@ end
 @testset "cube surface grid interior faces iterator" begin
     @testset "all faces should be interior faces" begin
         mesh = cube_panel_mesh(1, FT)
-        @test length(Mesh.interior_faces(mesh)) ==
-              mesh.nfaces
+        @test length(Mesh.interior_faces(mesh)) == mesh.nfaces
         mesh = cube_panel_mesh(2, FT)
-        @test length(Mesh.interior_faces(mesh)) ==
-              mesh.nfaces
+        @test length(Mesh.interior_faces(mesh)) == mesh.nfaces
     end
 
     @testset "6 element mesh with 1 element per panel" begin
@@ -109,7 +99,7 @@ end
     FT = Float64
     @testset "4 elements per edge, equidistant spherical mesh of radius 10; Float type = Float64" begin
         radius = FT(10)
-        mesh = sphere_mesh(4, radius,  EquidistantSphereWarp())
+        mesh = sphere_mesh(4, radius, EquidistantSphereWarp())
         crad = abs.(sqrt.(sum(mesh.coordinates .^ 2, dims = 2)) .- radius)
         @test maximum(crad) ≤ 100 * eps(FT)
     end

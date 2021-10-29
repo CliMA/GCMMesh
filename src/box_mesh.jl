@@ -1,4 +1,17 @@
+"""
+    equispaced_rectangular_mesh(
+    x1min::FT,
+    x2min::FT,
+    x1max::FT,
+    x2max::FT,
+    n1,
+    n2,
+    per = (false, false),
+) where {FT<:AbstractFloat}
 
+This function generates an equispaced rectangular mesh with user provided coordinates of left bottom and
+right top vertices, number of mesh elements in each direction and periodicity information.
+"""
 function equispaced_rectangular_mesh(
     x1min::FT,
     x2min::FT,

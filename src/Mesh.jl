@@ -30,11 +30,11 @@ embedded in a higher dimensional space.
 
                 v4            f3           v3
                   o------------------------o
-                  |                        |	  face    vertices
+                  |                        |      face    vertices
                   |       <----------      |             
-                  |                 |      |		f1 =>  v1 v2 
+                  |                 |      |        f1 =>  v1 v2 
                f4 |                 |      | f2     f2 =>  v2 v3
-                  |                 |      |		f3 =>  v3 v4
+                  |                 |      |        f3 =>  v3 v4
                   |                 |      |        f4 =>  v4 v1
                   |       -----------      |
                   |                        |
@@ -48,13 +48,13 @@ https://gsjaardema.github.io/seacas-docs/html/element_types.html#ordering
 $(DocStringExtensions.FIELDS)
 """
 struct Mesh2D{I,IA1D,IA2D,FT,FTA2D,SNT,NB} <: AbstractMesh{I,FT}
-    "# of unique vertices in the mesh"
+    "number of unique vertices in the mesh"
     nverts::I
-    "# of unique faces in the mesh"
+    "number of unique faces in the mesh"
     nfaces::I
-    "# of elements in the mesh"
+    "number of elements in the mesh"
     nelems::I
-    "# of zones in the mesh"
+    "number of zones in the mesh"
     nbndry::I
     "x₁, x₂, ... coordinates of vertices `(nverts, dim)`, dim can be greater than 2 for 2D manifolds embedded in higher dimensional space"
     coordinates::FTA2D
@@ -164,15 +164,15 @@ https://gsjaardema.github.io/seacas-docs/html/element_types.html#ordering
 $(DocStringExtensions.FIELDS)
 """
 struct Mesh3D{I,IA1D,IA2D,FT,FTA2D,SNT,NB} <: AbstractMesh{I,FT}
-    "# of nodes in the mesh"
+    "number of nodes in the mesh"
     nverts::I
-    "# of edges in the mesh"
+    "number of edges in the mesh"
     nedges::I
-    "# of faces in the mesh"
+    "number of faces in the mesh"
     nfaces::I
-    "# of elements in the mesh"
+    "number of elements in the mesh"
     nelems::I
-    "# of zones in the mesh"
+    "number of zones in the mesh"
     nbndry::I
     "x₁, x₂, x₃ coordinates of nodes `(nverts, 3)`"
     coordinates::FTA2D

@@ -130,6 +130,7 @@ This function builds a cube panel mesh with a resolution of `ne` elements along 
        edge 11 => 7 8
        edge 12 => 8 5
 
+
             v8 +---e11---+ v7
                | ^       |
                | |       |

@@ -1,5 +1,6 @@
 using Test
 using Plots
+using LinearAlgebra
 
 using GCMMesh
 using GCMMesh.Mesh
@@ -12,6 +13,36 @@ x1min, x1max = FT(0), FT(1)
 x2min, x2max = FT(0), FT(1)
 
 limits = (x1min, x2min, x1max, x2max)
+
+function is_in_fiedler_vector_space(
+    eigvec,
+    graph::Graph{I,FT},
+    evec_tol = FT(1.0E-6),
+) where {I,FT}
+    nv = graph.nverts
+    vl, vu = FT(1), FT(1) # not used
+    il, iu = 1, nv
+    st, en = 2, 2
+    abstol = FT(1.0E-14)    # abs tolerance for syevr! LAPACK solver
+    eig_reltol = FT(1.0E-4) # relative tolerance for finding fiedler eigenvalues with algebraic
+                            # multiplicity > 1
+    lmat = Graphs.laplacian_matrix_full(graph)
+    eigvals, eigvecs = LinearAlgebra.LAPACK.syevr!('V', 'I', 'L', lmat, vl, vu, il, iu, abstol)
+    
+    fdlr_eig = eigvals[2]
+    for i in 3:nv
+        if abs(fdlr_eig - eigvals[i]) < eig_reltol
+            en = i
+        else
+            break
+        end
+    end
+    diff = zeros(FT, nv)
+    for i in st:en
+        diff .+= (eigvec' * eigvecs[:, i]) .* eigvecs[:, i]
+    end
+    return norm(diff .- eigvec) < evec_tol
+end
 
 @testset "graph for a simple 4 x 4 rectangular grid" begin
     @testset "face connectivity graph for a 4×4 element quad mesh" begin
@@ -178,5 +209,18 @@ end
         vout = Vector{FT}(undef, nverts)
         laplacian_x_v!(vout, vin, fgraph)
         @test vout == zeros(FT, nverts)
+    end
+end
+
+@testset "test Fiedler vector calculation using iterative methods" begin
+    @testset "for a 4×4 element quad mesh" begin
+        mesh = equispaced_rectangular_mesh(limits..., 4, 4, (false, false))
+        graph = build_face_graph(mesh)
+        fdlr_direct  = fiedler_vector(graph, Graphs.Direct())
+        fdlr_power   = fiedler_vector(graph, Graphs.PowerIt())
+        fdlr_lanczos = fiedler_vector(graph, Graphs.Lanczos())
+        @test is_in_fiedler_vector_space(fdlr_direct, graph)
+        @test is_in_fiedler_vector_space(fdlr_power, graph)
+        @test is_in_fiedler_vector_space(fdlr_lanczos, graph)
     end
 end

@@ -25,12 +25,13 @@ function is_in_fiedler_vector_space(
     st, en = 2, 2
     abstol = FT(1.0E-14)    # abs tolerance for syevr! LAPACK solver
     eig_reltol = FT(1.0E-4) # relative tolerance for finding fiedler eigenvalues with algebraic
-                            # multiplicity > 1
+    # multiplicity > 1
     lmat = Graphs.laplacian_matrix_full(graph)
-    eigvals, eigvecs = LinearAlgebra.LAPACK.syevr!('V', 'I', 'L', lmat, vl, vu, il, iu, abstol)
-    
+    eigvals, eigvecs =
+        LinearAlgebra.LAPACK.syevr!('V', 'I', 'L', lmat, vl, vu, il, iu, abstol)
+
     fdlr_eig = eigvals[2]
-    for i in 3:nv
+    for i = 3:nv
         if abs(fdlr_eig - eigvals[i]) < eig_reltol
             en = i
         else
@@ -38,7 +39,7 @@ function is_in_fiedler_vector_space(
         end
     end
     diff = zeros(FT, nv)
-    for i in st:en
+    for i = st:en
         diff .+= (eigvec' * eigvecs[:, i]) .* eigvecs[:, i]
     end
     return norm(diff .- eigvec) < evec_tol
@@ -212,12 +213,39 @@ end
     end
 end
 
+@testset "test split graph" begin
+    @testset "for a 4×4 element quad mesh" begin
+        mesh = equispaced_rectangular_mesh(limits..., 4, 4, (false, false))
+        graph = build_face_graph(mesh)
+        nv = graph.nverts
+        nv1 = Int(cld(nv, 2))
+        g1, g2 = split_graph(graph, nv1)
+        @test g1.nverts == nv1         # check if the graph size is right
+        @test g2.nverts == nv - nv1
+        @test isempty(intersect(g1.vertices, g2.vertices)) # no common vertices
+        @test sort(graph.vertices) == sort(union(g1.vertices, g2.vertices))
+    end
+
+    @testset "for a 24 element cube panel mesh" begin
+        mesh = cube_panel_mesh(2, FT)
+        graph = build_vertex_graph(mesh)
+        nv = graph.nverts
+        nv1 = Int(cld(nv, 2))
+        g1, g2 = split_graph(graph, nv1)
+        @test g1.nverts == nv1         # check if the graph size is right
+        @test g2.nverts == nv - nv1
+        @test isempty(intersect(g1.vertices, g2.vertices)) # no common vertices
+        @test sort(graph.vertices) == sort(union(g1.vertices, g2.vertices))
+    end
+
+end
+
 @testset "test Fiedler vector calculation using iterative methods" begin
     @testset "for a 4×4 element quad mesh" begin
         mesh = equispaced_rectangular_mesh(limits..., 4, 4, (false, false))
         graph = build_face_graph(mesh)
-        fdlr_direct  = fiedler_vector(graph, Graphs.Direct())
-        fdlr_power   = fiedler_vector(graph, Graphs.PowerIt())
+        fdlr_direct = fiedler_vector(graph, Graphs.Direct())
+        fdlr_power = fiedler_vector(graph, Graphs.PowerIt())
         fdlr_lanczos = fiedler_vector(graph, Graphs.Lanczos())
         @test is_in_fiedler_vector_space(fdlr_direct, graph)
         @test is_in_fiedler_vector_space(fdlr_power, graph)

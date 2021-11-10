@@ -95,6 +95,53 @@ end
     end
 end
 
+@testset "simple cube panel unfolding tests" begin
+    @testset "point on panel 1" begin
+        x, y, z = [FT(0.5)], [FT(0.5)], [FT(0)]
+        panelno = 1
+        xx, yy = Mesh.unfold_cube_panel_to_plane(x, y, z, panelno)
+        @test (xx, yy) == ([FT(0.5)], [FT(0.5)])
+    end
+    @testset "point on panel 2" begin
+        x, y, z = [FT(1)], [FT(0.5)], [FT(0.5)]
+        panelno = 2
+        xx, yy = Mesh.unfold_cube_panel_to_plane(x, y, z, panelno)
+        @test (xx, yy) == ([FT(1.5)], [FT(0.5)])
+    end
+    @testset "point on panel 3" begin
+        x, y, z = [FT(0.5)], [FT(1)], [FT(0.5)]
+        panelno = 3
+        xx, yy = Mesh.unfold_cube_panel_to_plane(x, y, z, panelno)
+        @test (xx, yy) == ([FT(0.5)], [FT(1.5)])
+    end
+    @testset "point on panel 4" begin
+        x, y, z = [FT(0)], [FT(0.5)], [FT(0.5)]
+        panelno = 4
+        xx, yy = Mesh.unfold_cube_panel_to_plane(x, y, z, panelno)
+        @test (xx, yy) == ([-FT(0.5)], [FT(0.5)])
+    end
+    @testset "point on panel 5" begin
+        x, y, z = [FT(0.5)], [FT(0)], [FT(0.5)]
+        panelno = 5
+        xx, yy = Mesh.unfold_cube_panel_to_plane(x, y, z, panelno)
+        @test (xx, yy) == ([FT(0.5)], [-FT(0.5)])
+    end
+    @testset "point on panel 6" begin
+        x, y, z = [FT(0.5)], [FT(0.5)], [FT(1)]
+        panelno = 6
+        xx, yy = Mesh.unfold_cube_panel_to_plane(x, y, z, panelno)
+        @test (xx, yy) == ([FT(2.5)], [FT(0.5)])
+    end
+    @testset "throw error for non-existent panel 7" begin
+        x, y, z = [FT(0.5)], [FT(0.5)], [FT(1)]
+        panelno = 7
+        @test_throws AssertionError Mesh.unfold_cube_panel_to_plane(x, y, z, panelno)
+        panelno = 0
+        @test_throws AssertionError Mesh.unfold_cube_panel_to_plane(x, y, z, panelno)
+    end
+
+end
+
 @testset "sphere mesh" begin
     FT = Float64
     @testset "4 elements per edge, equidistant spherical mesh of radius 10; Float type = Float64" begin

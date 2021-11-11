@@ -155,13 +155,7 @@ function Mesh2D(x1c, x2c, per = (false, false))
                 el = elems[e]
                 if el ≠ 0
                     localface = findfirst(elem_faces[el, :] .== fc)
-                    if isnothing(localface)
-                        error(
-                            "rectangular_mesh: Fatal error, face could not be located in neighboring element",
-                        )
-                    else
-                        face_neighbors[fc, 2+(e-1)*2] = localface
-                    end
+                    face_neighbors[fc, 2+(e-1)*2] = localface
                 end
             end
         end

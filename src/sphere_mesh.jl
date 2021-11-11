@@ -39,32 +39,36 @@ function cubed_sphere_warp(wtype::EquiangularSphereWarp, a, b, c)
     end
 
     fdim = argmax(abs.((a, b, c)))
-    if fdim == 1 && a < 0
-        # (-R, *, *) : formulas for Face I from Ronchi, Iacono, Paolucci (1996)
-        #              but for us face IV of the developed net of the cube
-        x1, x2, x3 = f(-R, b / a, c / a)
-    elseif fdim == 2 && b < 0
-        # ( *,-R, *) : formulas for Face II from Ronchi, Iacono, Paolucci (1996)
-        #              but for us face V of the developed net of the cube
-        x2, x1, x3 = f(-R, a / b, c / b)
-    elseif fdim == 1 && a > 0
-        # ( R, *, *) : formulas for Face III from Ronchi, Iacono, Paolucci (1996)
-        #              but for us face II of the developed net of the cube
-        x1, x2, x3 = f(R, b / a, c / a)
-    elseif fdim == 2 && b > 0
-        # ( *, R, *) : formulas for Face IV from Ronchi, Iacono, Paolucci (1996)
-        #              but for us face III of the developed net of the cube
-        x2, x1, x3 = f(R, a / b, c / b)
-    elseif fdim == 3 && c > 0
-        # ( *, *, R) : formulas for Face V from Ronchi, Iacono, Paolucci (1996)
-        #              but for us face VI of the developed net of the cube
-        x3, x2, x1 = f(R, b / c, a / c)
-    elseif fdim == 3 && c < 0
-        # ( *, *,-R) : formulas for Face VI from Ronchi, Iacono, Paolucci (1996)
-        #              but for us face I of the developed net of the cube
-        x3, x2, x1 = f(-R, b / c, a / c)
-    else
-        error("invalid case for cubed_sphere_warp(::EquiangularCubedSphere): $a, $b, $c")
+    if fdim == 1
+        if a < 0
+            # (-R, *, *) : formulas for Face I from Ronchi, Iacono, Paolucci (1996)
+            #              but for us face IV of the developed net of the cube
+            x1, x2, x3 = f(-R, b / a, c / a)
+        elseif a > 0
+            # ( R, *, *) : formulas for Face III from Ronchi, Iacono, Paolucci (1996)
+            #              but for us face II of the developed net of the cube
+            x1, x2, x3 = f(R, b / a, c / a)
+        end
+    elseif fdim == 2
+        if b < 0
+            # ( *,-R, *) : formulas for Face II from Ronchi, Iacono, Paolucci (1996)
+            #              but for us face V of the developed net of the cube
+            x2, x1, x3 = f(-R, a / b, c / b)
+        elseif b > 0
+            # ( *, R, *) : formulas for Face IV from Ronchi, Iacono, Paolucci (1996)
+            #              but for us face III of the developed net of the cube
+            x2, x1, x3 = f(R, a / b, c / b)
+        end
+    elseif fdim == 3
+        if c > 0
+            # ( *, *, R) : formulas for Face V from Ronchi, Iacono, Paolucci (1996)
+            #              but for us face VI of the developed net of the cube
+            x3, x2, x1 = f(R, b / c, a / c)
+        elseif c < 0
+            # ( *, *,-R) : formulas for Face VI from Ronchi, Iacono, Paolucci (1996)
+            #              but for us face I of the developed net of the cube
+            x3, x2, x1 = f(-R, b / c, a / c)
+        end
     end
 
     return x1, x2, x3
@@ -358,22 +362,8 @@ function cube_panel_mesh(ne::I, ::Type{FT}) where {FT<:AbstractFloat,I<:Integer}
         elems = (face_neighbors[fc, 1], face_neighbors[fc, 3])
         for e = 1:2
             el = elems[e]
-            if el ≠ 0
-                localface = findfirst(elem_faces[el, :] .== fc)
-                if isnothing(localface)
-                    error(
-                        "rectangular_mesh: Fatal error, face could not be located in neighboring element;\n",
-                        "el = $el;\n",
-                        "elem_faces[$el, :] = $(elem_faces[el, :]);\n",
-                        "fc = $fc;\n",
-                        "face_neighbors[$fc,:] = $(face_neighbors[fc,:]);\n",
-                        "elem_faces[$(elems[1]), :] = $(elem_faces[elems[1], :]);\n",
-                        "elem_faces[$(elems[2]), :] = $(elem_faces[elems[2], :]);\n",
-                    )
-                else
-                    face_neighbors[fc, 2+(e-1)*2] = localface
-                end
-            end
+            localface = findfirst(elem_faces[el, :] .== fc)
+            face_neighbors[fc, 2+(e-1)*2] = localface
         end
         # setting up relative orientation
         or1 =
@@ -386,15 +376,10 @@ function cube_panel_mesh(ne::I, ::Type{FT}) where {FT<:AbstractFloat,I<:Integer}
     end
 
     boundary_tags = sort(unique(face_boundary))
-    face_boundary_offset = ones(I, length(boundary_tags) + 1)
     face_boundary_tags = sort(face_boundary)
     face_boundary = sortperm(face_boundary)
 
-    for i = 1:(length(boundary_tags)-1)
-        tag = boundary_tags[i+1]
-        face_boundary_offset[i+1] = findfirst(face_boundary_tags .== tag)
-    end
-    face_boundary_offset[end] = length(face_boundary) + 1
+    face_boundary_offset = I[1, length(face_boundary)+1]
 
     boundary_tag_names = (:interior,)
 
@@ -468,8 +453,6 @@ function unfold_cube_panel_to_plane(
     elseif panelno == 6
         xx = 3 .- x
         yy = y
-    else
-        error("unfold_cube_panel_to_plane: panelno $panelno, not in 1 through 6")
     end
 
     return xx, yy

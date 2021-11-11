@@ -10,10 +10,6 @@ function opposing_face(mesh::Mesh2D, elem, local_face)
         neigh_elem, neigh_lface = neighbors[face, 3], neighbors[face, 4]
     elseif neighbors[face, 3] == elem && neighbors[face, 4] == local_face
         neigh_elem, neigh_lface = neighbors[face, 1], neighbors[face, 2]
-    else
-        error(
-            "opposing_face: Fatal error, elem not found in face_neighbors; face_neighbors[$face] = $(neighbors[face, :])",
-        )
     end
     if neigh_elem == 0
         neigh_lface = local_face
@@ -69,12 +65,7 @@ function unique_vertex_connectivity(mesh::Mesh2D, uvertno::Int)
     conn = mesh.uverts_conn
     st, en = offset[uvertno], offset[uvertno+1]
     nconn = div(en - st, 2)
-
-    if nconn == 0
-        return nothing
-    else
-        return [tuple(conn[(st+(i-1)*2):(st+(i-1)*2+1)]...) for i = 1:nconn]
-    end
+    return [tuple(conn[(st+(i-1)*2):(st+(i-1)*2+1)]...) for i = 1:nconn]
 end
 
 function vertex_coordinates(mesh::Mesh2D, elem)
@@ -97,10 +88,6 @@ function opposing_face(mesh::Mesh1D, elem, local_face)
         neigh_elem, neigh_lface = neighbors[face, 3], neighbors[face, 4]
     elseif neighbors[face, 3] == elem && neighbors[face, 4] == local_face
         neigh_elem, neigh_lface = neighbors[face, 1], neighbors[face, 2]
-    else
-        error(
-            "opposing_face: Fatal error, elem not found in face_neighbors; face_neighbors[$face] = $(neighbors[face, :])",
-        )
     end
     if neigh_elem == 0
         neigh_lface = local_face

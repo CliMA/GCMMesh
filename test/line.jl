@@ -74,6 +74,7 @@ end
         @test [Mesh.boundary_face_info(mesh, face) for face in faces2] == [(1, 2)]
         @test Mesh.boundary_tag(mesh, :left) == 1
         @test Mesh.boundary_tag(mesh, :right) == 2
+        @test Mesh.boundary_tag(mesh, :bottom) == nothing # no such boundary for line mesh
     end
     @testset "2 element line mesh with non-periodic boundaries" begin
         mesh = equispaced_line_mesh(limits..., 2, false)

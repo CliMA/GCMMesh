@@ -33,14 +33,6 @@ struct Graph{I<:Int,FT<:AbstractFloat,IA1D<:AbstractVector{I}} <: AbstractGraph
     spectral_radius::FT
 end
 
-Graph(nverts, edge_data, edge_offset, vertices, spectral_radius) =
-    Graph{typeof(nverts),typeof(spectral_radius),typeof(edge_data)}(
-        nverts,
-        edge_data,
-        edge_offset,
-        vertices,
-        spectral_radius,
-    )
 # constructor for an empty graph
 Graph(::Type{I}, ::Type{FT}) where {I,FT} = Graph{I,FT,Vector{I}}(0, I[], I[], I[], FT(0))
 
@@ -109,9 +101,6 @@ function build_face_graph(mesh::AbstractMesh{I,FT}) where {I,FT}
                 neigh = face_neighbors[fc, 3]
             elseif face_neighbors[fc, 3] == el
                 neigh = face_neighbors[fc, 1]
-            else
-                error("build_face_graph: fatal connectivity error;
-                      el = $el; fc = $fc, face_neighbors = $(face_neighbors[fc, :]))")
             end
             if neigh ≠ 0
                 temp[n+1] = neigh

@@ -123,6 +123,7 @@ end
         @test Mesh.boundary_tag(mesh, :east) == 2
         @test Mesh.boundary_tag(mesh, :south) == 3
         @test Mesh.boundary_tag(mesh, :north) == 4
+        @test Mesh.boundary_tag(mesh, :northeast) == nothing # no such boundary for rectangle
     end
     @testset "2×3 element quad mesh with non-periodic boundaries" begin
         mesh = equispaced_rectangular_mesh(limits..., 2, 3, (false, false))

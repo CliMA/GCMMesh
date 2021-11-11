@@ -17,11 +17,11 @@ FT = Float64
     mesh = equispaced_rectangular_mesh(limits..., n1, n2, (false, false))
     partition = rsb_partition(mesh, npart)
 
-    @test extrema(partition) == (0, npart - 1) # verify if process numbers are assigned to all elems
-    partlen = zeros(Int, npart)
+    partlen = Vector{Int}(undef, npart)
     for i = 1:npart
         partlen[i] = count(partition .== i - 1)
     end
+    @test extrema(partition) == (0, npart - 1) # verify if process numbers are assigned to all elems
     @test sum(partlen) == mesh.nelems             # verify sum(nlocalelems) == nelems 
     @test maximum(partlen) - minimum(partlen) ≤ 1 # check if partion lengths are even
 end

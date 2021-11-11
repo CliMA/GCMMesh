@@ -445,6 +445,7 @@ function unfold_cube_panel_to_plane(
     z::FTA1D,
     panelno::Int,
 ) where {FT<:AbstractFloat,FTA1D<:AbstractVector{FT}}
+    @assert 1 ≤ panelno ≤ 6
     n = length(x)
     xx = similar(x)
     yy = similar(x)
